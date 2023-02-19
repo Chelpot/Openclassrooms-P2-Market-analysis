@@ -1,7 +1,11 @@
+import os
+
 import requests
 from bs4 import BeautifulSoup
 
-
+#Create images directory if it doesn't exist
+if not os.path.exists('images'):
+    os.mkdir("images")
 
 def scrap_for_url(url):
     r = requests.get(URL_TO_GET)
