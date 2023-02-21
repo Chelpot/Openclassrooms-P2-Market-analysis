@@ -1,14 +1,17 @@
 import os
+import pandas as pd
 
 import requests
 from bs4 import BeautifulSoup
+
+URL_WEBSITE = 'https://books.toscrape.com'
 
 #Create images directory if it doesn't exist
 if not os.path.exists('images'):
     os.mkdir("images")
 
-def scrap_for_url(url):
-    r = requests.get(URL_TO_GET)
+def scrap_from_url(url):
+    r = requests.get(url)
     r.headers['content-type']
     soup = BeautifulSoup(r.text, 'html.parser')
     results = {}
@@ -65,5 +68,20 @@ def scrap_for_url(url):
 
     print(results)
 
-URL_TO_GET = 'https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html'
-scrap_for_url(URL_TO_GET)
+
+
+def get_all_categories_url():
+    r = requests.get(URL_WEBSITE)
+    r.headers['content-type']
+    soup = BeautifulSoup(r.text, 'html.parser')
+
+    categories_url = {}
+    data = soup.find('ul', class_='nav-list')
+    data = data.find('ul')
+    data = data.findAll('a')
+    for d in data:
+        category_name = " ".join(d.text.split())
+        category_url = URL_WEBSITE + "/" + d.attrs['href']
+        categories_url[category_name] = category_url
+    return categories_url
+
