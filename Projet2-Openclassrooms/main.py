@@ -7,8 +7,10 @@ from bs4 import BeautifulSoup
 URL_WEBSITE = 'https://books.toscrape.com'
 
 #Create images directory if it doesn't exist
-if not os.path.exists('images'):
-   os.mkdir("images")
+try:
+    os.mkdir("images")
+except OSError as error:
+    print(error)
 
 def scrap_from_url(url):
    r = requests.get(url)
@@ -28,6 +30,7 @@ def scrap_from_url(url):
        return dict_numbers[letter_number]
 
    # Title
+   print(url)
    results['title'] = soup.find_all('div', class_="product_main")[0].h1.string
    table_book_info = soup.findAll('tr')
 
@@ -66,7 +69,7 @@ def scrap_from_url(url):
    # URL for page product
    results['product_page_url'] = url
 
-   print(results)
+   return results
 
 
 
@@ -83,7 +86,6 @@ def get_all_categories_url():
        category_name = " ".join(d.text.split())
        category_url = URL_WEBSITE + "/" + d.attrs['href']
        categories_url[category_name] = category_url
-    print(categories_url)
     return categories_url
 
 def scrap_for_category(url):
@@ -98,18 +100,17 @@ def scrap_for_category(url):
     number_of_books = int(data[0].text)
     nb_pages = 0
 
-    #If category only have 1 page
+    #If category have more than 1 page
     if len(data)>1:
         number_of_books_per_page = int(data[2].text)
         nb_pages = math.ceil(number_of_books/number_of_books_per_page)
 
         for i, page in enumerate(range(0, nb_pages)):
            url = create_indexed_url(i, url)
-           print(url)
            pages_url.append(url)
+    #If category only have 1 page
     else:
-        url = create_indexed_url(1, url)
-        print(url)
+        url = create_indexed_url(0, url)
         pages_url.append(url)
 
     return pages_url
@@ -120,11 +121,33 @@ def create_indexed_url(i, url):
     url.pop(-1)
     url = '/'.join(url)
     url += '/'
-    url += 'page-{}.html'.format(i + 1)
+    if i == 0:
+        url += 'index.html'
+    else:
+        url += 'page-{}.html'.format(i + 1)
     return url
 
+def scrap_list_books_url(url):
+    r = requests.get(url)
+    r.headers['content-type']
+    soup = BeautifulSoup(r.text, 'html.parser')
+
+    list_books_url = []
+    list_books_tag = soup.find('ol', class_='row')
+    list_books_tag = list_books_tag.findAll('li')
+
+    for book in list_books_tag:
+        book = book.find('h3')
+        url = URL_WEBSITE + "/catalogue/" + book.find('a').attrs['href'][9::]
+        print(url)
+        list_books_url.append(url)
+
+    return list_books_url
 
 for a in get_all_categories_url().values():
-    scrap_for_category(a)
-    print('================================')
-
+    list_page_books_url_to_scrap = scrap_for_category(a)
+    for book_page_url in list_page_books_url_to_scrap:
+        print(book_page_url)
+        for book_url in scrap_list_books_url(book_page_url):
+            print(scrap_from_url(book_url))
+        print('================================')
