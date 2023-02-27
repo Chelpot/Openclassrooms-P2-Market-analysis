@@ -72,16 +72,12 @@ def scrap_from_url(url):
     results['review_rating'] = get_review_rating()
 
     # Image URL
-    url_start = 'https://books.toscrape.com'
     url_end = soup.find('img').attrs['src']
-    image_url = url_start + url_end[5::]
+    image_url = URL_WEBSITE + url_end[5::]
     results['image_url'] = image_url
 
     # URL for page product
     results['product_page_url'] = url
-
-    df = pd.DataFrame.from_dict(results, orient="index")
-    df.to_csv("{}.csv".format(results["category"]), index=False, header=results.keys())
 
     return results
 
@@ -158,6 +154,12 @@ def scrap_list_books_url(url):
 
     return list_books_url
 
+def save_img(data):
+    img = requests.get(data['image_url']).content
+    img_name = data['image_url'].split('/')[-1]
+    img_category = data['category']
+    with open('images/{}'.format(img_name), 'wb') as handler:
+        handler.write(img)
 
 #Search the home page for all categories url
 for category_url in get_all_categories_url().values():
@@ -168,7 +170,10 @@ for category_url in get_all_categories_url().values():
         print(url)
         for book_url in scrap_list_books_url(url):
             # Get all data scraped from a product page
-            list_data.append(scrap_from_url(book_url))
+            data = scrap_from_url(book_url)
+            list_data.append(data)
+            save_img(data)
+
     category_name = list_data[0]['category']
 
     #Save data from each category in a different csv file
