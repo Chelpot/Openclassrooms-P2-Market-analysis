@@ -1,7 +1,7 @@
 
 # Openclassrooms-P2-Market-analysis
 
-Ceci est un projet pour le 2nd projet de la formation Openclassrooms. Le code a pour but de visiter les pages du site ***http://books.toscrape.com/*** et de scrapper les informations des différents livres. Enfin, ces données sont stockés dans des fichiers CSV afin d'êtres consultés ulterieurement.
+Ceci est le 2nd projet de la formation Openclassrooms. Le code a pour but de visiter les pages du site ***http://books.toscrape.com/*** et de scrapper les informations des différents livres. Enfin, ces données sont stockés dans des fichiers CSV afin d'êtres consultés ulterieurement.
 
 ## Prérequis
 
