@@ -60,7 +60,7 @@ def scrap_from_url(url):
         results['product_description'] = description
     except AttributeError as error:
         print(error)
-        results['product_description'] = "No description"
+        results['product_description'] = ""
 
 
     # Category
